@@ -6,9 +6,38 @@ import mediapipe as mp
 import threading
 
 
-# class FaceCaptureView(APIView):
-#     def get(self, request: Request, camera_index: str) -> Response:
-#         return Response({"message": f"Oi get {camera_index}"}, status.HTTP_200_OK)
+# class FaceCaptureViewTest(APIView):
+#     def get(self, request: Request) -> Response:
+#         webcam = cv2.VideoCapture(0)
+
+#         facial_recognition = mp.solutions.face_detection
+#         draw = mp.solutions.drawing_utils
+#         face_recognizer = facial_recognition.FaceDetection()
+
+#         while webcam.isOpened():
+#             validation, frame = webcam.read()
+
+#             if not validation:
+#                 break
+
+#             image = frame
+#             faces_list = face_recognizer.process(image)
+
+#             if faces_list.detections:
+#                 for face in faces_list.detections:
+#                     draw.draw_detection(image, face)
+
+#             cv2.imshow("Webcam Face", image)
+#             if cv2.waitKey(5) == 27:
+#                 break
+
+#         cv2.imwrite("FacePicture.png", image)
+
+#         webcam.release()
+#         cv2.destroyAllWindows()
+#         return StreamingHttpResponse(
+#             frame, content_type="multipart/x-mixed-replace;boundary=frame"
+#         )
 
 
 # class FaceRecognitionView(APIView):
@@ -43,7 +72,7 @@ class FaceRecognitionAndCapture(object):
             if face_list.detections:
                 for face in face_list.detections:
                     search_face = draw.draw_detection(self.frame, face)
-                    if search_face == True:
+                    if search_face:
                         cv2.imwrite("FacePicture.png", self.frame)
                         break
 
@@ -104,31 +133,23 @@ def gen(camera):
 
 @gzip.gzip_page
 def FaceDetectionAndCapture(request):
-    try:
-        cam = FaceRecognitionAndCapture()
-        return StreamingHttpResponse(
-            gen(cam), content_type="multipart/x-mixed-replace;boundary=frame"
-        )
-    except:
-        pass
+    cam = FaceRecognitionAndCapture()
+    return StreamingHttpResponse(
+        gen(cam), content_type="multipart/x-mixed-replace;boundary=frame"
+    )
+
 
 @gzip.gzip_page
 def FaceView(request):
-    try:
-        cam = VideoCamera()
-        return StreamingHttpResponse(
-            gen(cam), content_type="multipart/x-mixed-replace;boundary=frame"
-        )
-    except:
-        pass
+    cam = VideoCamera()
+    return StreamingHttpResponse(
+        gen(cam), content_type="multipart/x-mixed-replace;boundary=frame"
+    )
+
 
 @gzip.gzip_page
 def FaceDetection(request):
-    try:
-        cam = FaceRecognition()
-        return StreamingHttpResponse(
-            gen(cam), content_type="multipart/x-mixed-replace;boundary=frame"
-        )
-    except:
-        pass
-
+    cam = FaceRecognition()
+    return StreamingHttpResponse(
+        gen(cam), content_type="multipart/x-mixed-replace;boundary=frame"
+    )
